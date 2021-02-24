@@ -1,16 +1,14 @@
 //API Key
-const appId = "698562790a4fc22fa3c7c9601d3c9e1e"; 
+const appId = "set your own app ID"; 
 
 const requestedCityWeather = city => fetch(`api.openweathermap.org/data/2.5/weather?q=sydney&appid=appId&units=metric`) .then(response => response.json());
 
-const createCardHtml = (name, emoji, temp, feelsLike, description) => `
-  <div>              
-        ${emoji}
+const createCardHtml = (name, temp, feelsLike, description) => `
       <div class="col-10">
         <div class="card-body">
           <div class="row card-title justify-content-between">
             <h4>${name}</h4>
-            <h6>${temp}c, feels like ${feelsLike}c</h6>
+            <h6>It is ${temp}c however it feels like ${feelsLike}c</h6>
           </div>
           <div class="row">
             <h5 class="card-subtitle text-muted">${description}</h5>
@@ -21,43 +19,26 @@ const createCardHtml = (name, emoji, temp, feelsLike, description) => `
   </div>
 `;
 
-const emojis = {
-    '01d': '☀️',
-    '02d': '⛅️',
-    '03d': '☁️',
-    '04d': '☁️',
-    '09d': '🌧',
-    '10d': '🌦',
-    '11d': '⛈',
-    '13d': '❄️',
-    '50d': '💨',
-    '01n': '☀️',
-    '02n': '⛅️',
-    '03n': '☁️',
-    '04n': '☁️',
-    '09n': '🌧',
-    '10n': '🌦',
-    '11n': '⛈',
-    '13n': '❄️',
-    '50n': '💨',
-  };
-
 const submitButton = document.querySelector('#submit-button');
 const cityInput = document.querySelector('#city-input');
 const weatherContainer = document.querySelector('#weather-container');
 
-submitButton.addEventListener('click', () => {
+submitButton.addEventListener('click', async () => {
   const city = cityInput.value;
+  const response = await fetch (`api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=${appId}&units=metric`);
+  const data = await response.json;
   requestedCityWeather(city)
     .then(data => {
+    // as the name is the first level
       const name = data.name;
-      const emoji = emojis[data.weather[0].icon];
       const temp = data.main.temp;
+    // as it is two levels down - main then feels_like
       const feelsLike = data.main.feels_like;
+    // under weather array [0]
       const description = data.weather[0].description;
 
-      const cardHtml = createCardHtml(name, emoji, temp, feelsLike, description);
+      const finishedHtml = createCardHtml(name, temp, feelsLike, description);
 
-      weatherContainer.innerHTML = cardHtml;
+      weatherContainer.innerHTML = finishedHtml;
     });
 });
